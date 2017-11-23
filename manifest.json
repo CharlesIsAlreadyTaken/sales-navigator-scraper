@@ -1,0 +1,16 @@
+{
+  "name": "Bin Chicken",
+  "description": "Finding food inside garbage.",
+  "version": "0.1",
+  "manifest_version": 2,
+  "permissions": ["activeTab", "storage", "tabs", "*://*/*"],
+  "browser_action": {
+    "default_title": "Enable/Disable",
+    "default_popup": "popup.html"
+  },
+  "icons": { 
+    "16": "img/icon16.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png" 
+  }
+}
