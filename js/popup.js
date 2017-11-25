@@ -72,7 +72,7 @@ $(document).ready(function() {
   chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
     url = tabs[0].url;
     tabId = tabs[0].id;
-    console.log('Active tab URL: ', url);
+    cleanUrl();
   });  
   chrome.tabs.executeScript({
     code: "if (!config){let config = '';} if(!start) {let start = 0;} "
@@ -100,11 +100,26 @@ $(document).ready(function() {
 });
 
 function downloadAsCSV(peopleList) {
-  let csvContent = "data:text/csv;charset=utf-8,";
+  const csvContent = "data:text/csv;charset=utf-8,";
   peopleList.forEach(function(infoArray, index){
       dataString = infoArray.join(",");
       csvContent += index < peopleList.length ? dataString+ "\n" : dataString;
   });
-  var encodedUri = encodeURI(csvContent);
+  let encodedUri = encodeURI(csvContent);
   window.open(encodedUri);
+}
+
+function cleanUrl() {
+  const origin = url.substring(0, url.indexOf('?') + 1);
+  const query = url.substring(url.indexOf('?') + 1);
+  let vars = query.split('&');
+  for (let i = 0; i < vars.length; i++) {
+    if(vars[i].indexOf('count') >= 0 || vars[i].indexOf('start') >= 0) {
+      vars.splice(i, 1);
+    }
+  }
+  url = origin + '?';
+  for (let i = 0; i < vars.length; i++) {
+    url = url + vars[i];
+  }
 }
