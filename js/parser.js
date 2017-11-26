@@ -1,4 +1,4 @@
-if (!count) {
+if (typeof count === undefined) {
     let count = 0;
 }
 count = $('span.spotlight-result-count:first').text();

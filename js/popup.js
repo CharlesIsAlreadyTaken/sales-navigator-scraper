@@ -100,7 +100,7 @@ $(document).ready(function() {
 });
 
 function downloadAsCSV(peopleList) {
-  const csvContent = "data:text/csv;charset=utf-8,";
+  let csvContent = "data:text/csv;charset=utf-8,";
   peopleList.forEach(function(infoArray, index){
       dataString = infoArray.join(",");
       csvContent += index < peopleList.length ? dataString+ "\n" : dataString;
@@ -112,14 +112,22 @@ function downloadAsCSV(peopleList) {
 function cleanUrl() {
   const origin = url.substring(0, url.indexOf('?') + 1);
   const query = url.substring(url.indexOf('?') + 1);
+  console.log('Origin: ', origin);
+  console.log('Query: ', query);
   let vars = query.split('&');
+  console.log('Vars: ', vars);
   for (let i = 0; i < vars.length; i++) {
-    if(vars[i].indexOf('count') >= 0 || vars[i].indexOf('start') >= 0) {
+    if(vars[i].indexOf('count') >= 0) {
+      console.log('Found arg to remove: ', vars[i]);
+      vars.splice(i, 1);
+    }
+    if(vars[i].indexOf('start') >= 0) {
+      console.log('Found arg to remove: ', vars[i]);
       vars.splice(i, 1);
     }
   }
-  url = origin + '?';
+  url = origin;
   for (let i = 0; i < vars.length; i++) {
-    url = url + vars[i];
+    url = url + '&' + vars[i];
   }
 }
