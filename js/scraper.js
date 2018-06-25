@@ -1,4 +1,3 @@
-console.log('Config found: ', config);
 count = config.count;
 start = config.start;
 let resultsList = [];
@@ -31,18 +30,13 @@ function scrapeSearch(callback) {
 };
 
 function scrapeAll() {
-    console.log('Starting scrape...');
     clearTimeout();
     scrapeSearch();
-    //downloadAsCSV(resultsList);
-    console.log("done");
     chrome.runtime.sendMessage({results: resultsList});
 }
 
 var checkExist = setInterval(function() {
-    console.log($('ul#results-list').find('.name-link:first').attr('href'));
     if ($('ul#results-list').find('.name-link:first').attr('href')) {
-        console.log("List loaded, triggering parser");
         clearInterval(checkExist);
         setTimeout(function(){
             scrapeAll();

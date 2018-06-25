@@ -10,7 +10,6 @@ let tabId = 0;
 let progressBar = $('div.progress-bar:first');
 
 function parse() {
-  console.log('Parsing!');
   chrome.tabs.executeScript({
     file: 'js/jquery.js'
   }, function() {
@@ -32,10 +31,11 @@ function scrape() {
   }
   config.count = step;
   let tempUrl = url + "&start=" + config.start + "&count=" + config.count;
-  
+  chrome.tabs.update({
+    url: tempUrl
+  });
   chrome.tabs.onUpdated.addListener(function listener (tab, info) {
     if (info.status === 'complete' && tabId === tab) {
-        console.log('tab updated');
         chrome.tabs.onUpdated.removeListener(listener);
         chrome.tabs.executeScript({
           file: 'js/jquery.js'
@@ -46,7 +46,6 @@ function scrape() {
             chrome.tabs.executeScript({
               file: 'js/scraper.js'
             }, function(res) {
-              console.log('Response: ', res);
               i++;
               if (i <= iterations) {
                 progressBar.text(parseInt(((i / iterations) * 100) - 1) + "%");
@@ -56,16 +55,16 @@ function scrape() {
                 }, 10000);
               } else {
                 i = 0;
-                downloadAsCSV(results);
+                $('#profiles').text("Processing");
+                setTimeout(function() {
+                  downloadAsCSV(results);
+                }, 3000);
               }
             });
           });
       });
     }
   }); 
-  chrome.tabs.update({
-    url: tempUrl
-  });
 }
 
 $(document).ready(function() {
@@ -82,10 +81,6 @@ $(document).ready(function() {
 
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      console.log(sender.tab ?
-                  "from a content script:" + sender.tab.url :
-                  "from the extension");
-      console.log("Request: ", request);
       if (request.count) {
         if (request.count > 1000) {
           request.count = 1000;
@@ -94,7 +89,6 @@ $(document).ready(function() {
         counter = request.count;
       } else if (request.results) {
         results = results.concat(request.results);
-        console.log("Results: ", results);
       }
     });
 });
@@ -103,7 +97,7 @@ function downloadAsCSV(peopleList) {
   let csvContent = "data:text/csv;charset=utf-8,";
   peopleList.forEach(function(infoArray, index){
       dataString = infoArray.join(",");
-      csvContent += index < peopleList.length ? dataString+ "\n" : dataString;
+      csvContent += index < peopleList.length ? dataString + "\n" : dataString;
   });
   let encodedUri = encodeURI(csvContent);
   window.open(encodedUri);
@@ -112,17 +106,12 @@ function downloadAsCSV(peopleList) {
 function cleanUrl() {
   const origin = url.substring(0, url.indexOf('?') + 1);
   const query = url.substring(url.indexOf('?') + 1);
-  console.log('Origin: ', origin);
-  console.log('Query: ', query);
   let vars = query.split('&');
-  console.log('Vars: ', vars);
   for (let i = 0; i < vars.length; i++) {
     if(vars[i].indexOf('count') >= 0) {
-      console.log('Found arg to remove: ', vars[i]);
       vars.splice(i, 1);
     }
     if(vars[i].indexOf('start') >= 0) {
-      console.log('Found arg to remove: ', vars[i]);
       vars.splice(i, 1);
     }
   }
