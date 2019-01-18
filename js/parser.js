@@ -1,7 +1,7 @@
 if (typeof count === undefined) {
     let count = 0;
 }
-count = $('span.spotlight-result-count:first').text();
+count = $('span.artdeco-tab-primary-text:first').text();
 if (count.indexOf('K') >= 0 || count.indexOf('.') >= 0) {
     count = 1000;
 }

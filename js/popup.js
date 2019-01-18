@@ -1,11 +1,12 @@
 let config = {
-  count: 100,
-  start: 0
+  count: 0,
+  start: 0,
+  page: 1
 }
 let url = "";
 let results = [];
 let counter = 0;
-let i = 0;
+let i = 1;
 let tabId = 0;
 let progressBar = $('div.progress-bar:first');
 
@@ -22,15 +23,19 @@ function parse() {
 function scrape() {
   progressBar.show();
   clearTimeout();
-  let step = 100;
+  let step = 26;
   let iterations = parseInt(counter/step);
+  if(counter%step > 0) {
+    iterations ++;
+  }
   let last = counter%step;
   config.start = i * step;
+  config.page = i;
   if (i === iterations) {
     step = last;
   }
   config.count = step;
-  let tempUrl = url + "&start=" + config.start + "&count=" + config.count;
+  let tempUrl = url + "&page=" + config.page;
   chrome.tabs.update({
     url: tempUrl
   });
@@ -89,6 +94,7 @@ $(document).ready(function() {
         counter = request.count;
       } else if (request.results) {
         results = results.concat(request.results);
+        console.log(results);
       }
     });
 });
@@ -108,10 +114,7 @@ function cleanUrl() {
   const query = url.substring(url.indexOf('?') + 1);
   let vars = query.split('&');
   for (let i = 0; i < vars.length; i++) {
-    if(vars[i].indexOf('count') >= 0) {
-      vars.splice(i, 1);
-    }
-    if(vars[i].indexOf('start') >= 0) {
+    if(vars[i].indexOf('page') >= 0) {
       vars.splice(i, 1);
     }
   }
